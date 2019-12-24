@@ -14,7 +14,7 @@ It gives users an easier way to use MEGADOCK application containers when conside
 - [Docker](https://www.docker.com/) (if you use)
 - [Singularity](https://sylabs.io/) (if you use)
 
-## Repository overview
+## Repository Overview
 ```
 .
 ├── data                                #  
@@ -43,16 +43,16 @@ It gives users an easier way to use MEGADOCK application containers when conside
 - [MEGADOCK-HPCCM](#megadock-hpccm)
   - [Description](#description)
   - [Requirements](#requirements)
-  - [Repository overview](#repository-overview)
+  - [Repository Overview](#repository-overview)
   - [Quick Links](#quick-links)
-  - [Docker environment](#docker-environment)
+  - [Docker Environment](#docker-environment)
     - [Requirements](#requirements-1)
     - [1. Setting up (HPCCM)](#1-setting-up-hpccm)
     - [2. Generate Dockerfile](#2-generate-dockerfile)
     - [3. Build Docker image](#3-build-docker-image)
     - [4. Test with sample protein-protein pairs](#4-test-with-sample-protein-protein-pairs)
     - [5. Test with ZLAB benchmark dataset](#5-test-with-zlab-benchmark-dataset)
-  - [Singularity environment](#singularity-environment)
+  - [Singularity Environment](#singularity-environment)
     - [Requirements](#requirements-2)
     - [1. Setting up (HPCCM)](#1-setting-up-hpccm-1)
     - [2. Generate Singularity Definition](#2-generate-singularity-definition)
@@ -62,7 +62,7 @@ It gives users an easier way to use MEGADOCK application containers when conside
 
 ----
 
-## Docker environment
+## Docker Environment
 
 ### Requirements
 
@@ -78,7 +78,7 @@ sudo pip install hpccm
 
 # clone MEGADOCK-HPCCM repository
 git clone https://github.com/akiyamalab/megadock_hpccm.git
-cd sc19_megadock_hpccm
+cd megadock_hpccm
 ```
 
 ### 2. Generate Dockerfile
@@ -116,7 +116,7 @@ docker run --rm -it --gpus all \
 ```sh
 # clone MEGADOCK-HPCCM repository
 git clone https://github.com/akiyamalab/megadock_hpccm.git
-cd sc19_megadock_hpccm
+cd megadock_hpccm
 
 # download benchmark dataset (ZDOCK Benchmark 5.0)
 mkdir -p data
@@ -141,7 +141,7 @@ docker run --rm -it --gpus all \
 
 ----
 
-## Singularity environment
+## Singularity Environment
 
 ### Requirements
 
@@ -160,7 +160,7 @@ sudo pip install hpccm
 
 # clone MEGADOCK-HPCCM repository
 git clone https://github.com/akiyamalab/megadock_hpccm.git
-cd sc19_megadock_hpccm
+cd megadock_hpccm
 ```
 
 ### 2. Generate Singularity Definition
@@ -200,7 +200,7 @@ sudo singularity build megadock-hpccm.simg singularity.def
 ```sh
 # clone MEGADOCK-HPCCM repository
 git clone https://github.com/akiyamalab/megadock_hpccm.git
-cd sc19_megadock_hpccm
+cd megadock_hpccm
 
 # singularity exec 
 singularity exec --nv ${SINGULARITY_IMAGE} \
@@ -212,7 +212,7 @@ singularity exec --nv ${SINGULARITY_IMAGE} \
 ```sh
 # clone MEGADOCK-HPCCM repository
 git clone https://github.com/akiyamalab/megadock_hpccm.git
-cd sc19_megadock_hpccm
+cd megadock_hpccm
 
 # download benchmark dataset (ZDOCK Benchmark 5.0)
 mkdir -p data
