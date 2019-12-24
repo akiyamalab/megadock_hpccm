@@ -2,9 +2,10 @@
 
 ## Description
 
-MEGADOCK-HPCCM is a HPC container making workflow for [MEGADOCK](https://github.com/akiyamalab/MEGADOCK) application on HPC environment by using [HPCCM (HPC Container Maker)](https://github.com/NVIDIA/hpc-container-maker/) framework. It can generate container specification (recipe) files in [Dockerfile](https://docs.docker.com/engine/reference/builder/) and [Singularity definition](https://sylabs.io/guides/3.3/user-guide/definition_files.html) format from single python code.
-The container has necessary GPU, OpenMPI, FFTW, InfiniBand, Intel Omni-Path libraries to perform MEGADOCK application on HPC environment. Users can add user arguments to specify the MPI library version in the container for considering the MPI library compatibility between containers and HPC environments.
-
+MEGADOCK-HPCCM is a HPC container making workflow for [MEGADOCK](https://github.com/akiyamalab/MEGADOCK) application on HPC environments by using [HPCCM (HPC Container Maker)](https://github.com/NVIDIA/hpc-container-maker/) framework.
+It generates container specification (recipe) files both in [Dockerfile](https://docs.docker.com/engine/reference/builder/) and [Singularity definition](https://sylabs.io/guides/3.3/user-guide/definition_files.html) format from one simple python recipe.
+Dependent libraries (GPU, OpenMPI, FFTW, InfiniBand, Intel Omni-Path) will be properly configured by setting parameters to use MEGADOCK application on HPC environments.
+It gives users an easier way to use MEGADOCK application containers when considering the specification differences between the hosts and containers in multiple HPC environments.
 
 ## Requirements
 
@@ -16,31 +17,48 @@ The container has necessary GPU, OpenMPI, FFTW, InfiniBand, Intel Omni-Path libr
 ## Repository overview
 ```
 .
-├── data                                # directory for storing input
-│   └── ...                             #   small pdb data for sample docking
-├── sample                              # container image recipes used in the poster's experiments
-│   ├── Dockerfile                      #   Dockerfile for general environments
-│   ├── singularity_ompi-2-1-2_opa.def  #   Singularity definition for TSUBAME3.0
-│   └── singularity_ompi-3-1-6_ofed.def #   Singularity definition for ABCI
-├── script                              # 
-|   └── makeTable.sh                    # script for generating input docking list (table)
-├── megadock-scfa20                     # source code of MEGADOCK application
-├── megadock_hpccm.py                   # HPCCM recipe
-├── Makefile                            # Makefile for image building
-└── README.md                           # this document
+├── data                                #  
+│   └── ...                             #  sample of input file (.pdb, .table)
+├── sample                              #  
+│   ├── Dockerfile                      #  for general Docker environments
+│   ├── singularity_ompi-2-1-2_opa.def  #  for TSUBAME3.0 (ompi=2.1.2, opa=True)
+│   └── singularity_ompi-2-1-6_ofed.def #  for ABCI (ompi=2.1.6, ofed=True)
+├── script                              #  
+|   └── makeTable.sh                    #  script for generating input table (.table)
+├── megadock-scfa20                     #  source code of MEGADOCK 5.0 (alpha)
+├── megadock_hpccm.py                   #  MEGADOCK-HPCCM for HPCCM framework
+├── Makefile                            #  
+└── README.md                           #  this document
 
-# The directory will be generated after running scripts
+# The following directories will be generated after running scripts
 .
-├── table                           # directory for storing docking metadata
-└── out                             # directory for storing output
+├── table                           # directory for storing metadata files
+└── out                             # directory for storing output files
 ```
 
 ----
 
-## Quick Link
+## Quick Links
 
-- [Docker environment](#Docker-environment)
-- [Singularity environment](#Singularity-environment)
+- [MEGADOCK-HPCCM](#megadock-hpccm)
+  - [Description](#description)
+  - [Requirements](#requirements)
+  - [Repository overview](#repository-overview)
+  - [Quick Links](#quick-links)
+  - [Docker environment](#docker-environment)
+    - [Requirements](#requirements-1)
+    - [1. Setting up (HPCCM)](#1-setting-up-hpccm)
+    - [2. Generate Dockerfile](#2-generate-dockerfile)
+    - [3. Build Docker image](#3-build-docker-image)
+    - [4. Test with sample protein-protein pairs](#4-test-with-sample-protein-protein-pairs)
+    - [5. Test with ZLAB benchmark dataset](#5-test-with-zlab-benchmark-dataset)
+  - [Singularity environment](#singularity-environment)
+    - [Requirements](#requirements-2)
+    - [1. Setting up (HPCCM)](#1-setting-up-hpccm-1)
+    - [2. Generate Singularity Definition](#2-generate-singularity-definition)
+    - [3. Build Singularity image](#3-build-singularity-image)
+    - [4. Test with sample protein-protein pairs](#4-test-with-sample-protein-protein-pairs-1)
+    - [5. Test with ZLAB benchmark dataset](#5-test-with-zlab-benchmark-dataset-1)
 
 ----
 
@@ -52,35 +70,39 @@ The container has necessary GPU, OpenMPI, FFTW, InfiniBand, Intel Omni-Path libr
 - docker ( > 19.03 )
   - or `nvidia-docker` for gpu support
 
-### Setting up: install HPCCM
+### 1. Setting up (HPCCM)
 
 ```sh
 # install hpccm
 sudo pip install hpccm
 
 # clone MEGADOCK-HPCCM repository
-git clone https://github.com/metaVariable/sc19_megadock_hpccm.git
+git clone https://github.com/akiyamalab/megadock_hpccm.git
 cd sc19_megadock_hpccm
 ```
 
-### Build image: generate Dockerfile and build
+### 2. Generate Dockerfile
 
 ``` sh
 # generate 'Dockerfile' from hpccm recipe
 hpccm --recipe megadock_hpccm.py --format docker > Dockerfile
 
 ## or adding 'userarg' for specifying library versions
-hpccm --recipe megadock_hpccm.py --format docker --userarg ompi=3.1.3 fftw=3.3.8 > Dockerfile
+hpccm --recipe megadock_hpccm.py --format docker --userarg ompi=2.1.2 fftw=3.3.8 > Dockerfile
 
 ## Available userargs:
 ##  ompi=${ompi_version} : version of OpenMPI library
 ##  fftw=${fftw_version} : version of FFTW library
+```
 
+### 3. Build Docker image
+
+```sh
 # build a container image from Dockerfile
 docker build . -f Dockerfile -t megadock:hpccm
 ```
 
-### Run: MEGADOCK calculation with small dataset
+### 4. Test with sample protein-protein pairs
 
 ```sh
 # run with host gpus
@@ -89,11 +111,11 @@ docker run --rm -it --gpus all \
   mpirun --allow-run-as-root -n 2 /workspace/megadock-gpu-dp -tb /data/SAMPLE.table
 ```
 
-### Run: MEGADOCK calculation with ZDOCK Benchmark 5.0
+### 5. Test with ZLAB benchmark dataset
 
 ```sh
 # clone MEGADOCK-HPCCM repository
-git clone https://github.com/metaVariable/sc19_megadock_hpccm.git
+git clone https://github.com/akiyamalab/megadock_hpccm.git
 cd sc19_megadock_hpccm
 
 # download benchmark dataset (ZDOCK Benchmark 5.0)
@@ -130,32 +152,36 @@ docker run --rm -it --gpus all \
 
 Note: Following commands should be executed on your local environment where you have system privilege.
 
-### Setting up: install HPCCM
+### 1. Setting up (HPCCM)
 
 ```sh
 # install hpccm
 sudo pip install hpccm
 
 # clone MEGADOCK-HPCCM repository
-git clone https://github.com/metaVariable/sc19_megadock_hpccm.git
+git clone https://github.com/akiyamalab/megadock_hpccm.git
 cd sc19_megadock_hpccm
 ```
 
-### Build image: generate Singularity definition file and build
+### 2. Generate Singularity Definition
 
 ``` sh
 # generate 'singularity.def' from hpccm recipe
 hpccm --recipe megadock_hpccm.py --format singularity > singularity.def
 
 ## or adding 'userarg' for specifying library versions
-hpccm --recipe megadock_hpccm.py --format singularity --userarg ompi=3.1.3 fftw=3.3.8 ofed=True > singularity.def
+hpccm --recipe megadock_hpccm.py --format singularity --userarg ompi=2.1.6 fftw=3.3.8 ofed=True > singularity.def
 
 ## Available userargs:
 ##  ompi=${ompi_version} : version of OpenMPI library
 ##  fftw=${fftw_version} : version of FFTW library
 ##  ofed=${True|False} : flag for install 'Mellanox OpenFabrics Enterprise Distribution for Linux'
 ##  opa=${True|False} : flag for install Intel Ompni-Path dependencies
+```
 
+### 3. Build Singularity image
+
+```sh
 # build a container image from Dockerfile
 sudo singularity build megadock-hpccm.sif singularity.def
 
@@ -163,7 +189,7 @@ sudo singularity build megadock-hpccm.sif singularity.def
 sudo singularity build megadock-hpccm.simg singularity.def
 ```
 
-### Run: MEGADOCK calculation with small dataset
+### 4. Test with sample protein-protein pairs
 
 - **Notes:**
   - Following commands should be running on HPC environment (compute-node with gpus).
@@ -173,7 +199,7 @@ sudo singularity build megadock-hpccm.simg singularity.def
 
 ```sh
 # clone MEGADOCK-HPCCM repository
-git clone https://github.com/metaVariable/sc19_megadock_hpccm.git
+git clone https://github.com/akiyamalab/megadock_hpccm.git
 cd sc19_megadock_hpccm
 
 # singularity exec 
@@ -181,11 +207,11 @@ singularity exec --nv ${SINGULARITY_IMAGE} \
   mpirun -n 2 /workspace/megadock-gpu-dp -tb data/SAMPLE.table
 ```
 
-### Run: MEGADOCK calculation with ZDOCK Benchmark 5.0
+### 5. Test with ZLAB benchmark dataset
 
 ```sh
 # clone MEGADOCK-HPCCM repository
-git clone https://github.com/metaVariable/sc19_megadock_hpccm.git
+git clone https://github.com/akiyamalab/megadock_hpccm.git
 cd sc19_megadock_hpccm
 
 # download benchmark dataset (ZDOCK Benchmark 5.0)
